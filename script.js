@@ -101,6 +101,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 const valueInBaseUnit = fromUnitData.toBase(inputValueFra)
                 result = toUnitData.fromBase(valueInBaseUnit)
                 einboolean = false
+            
             }   else if (fromUnitData && toUnitData && !toboolean) {
                 const valueInBaseUnit = toUnitData.toBase(inputValueTil)
                 result = fromUnitData.fromBase(valueInBaseUnit)
