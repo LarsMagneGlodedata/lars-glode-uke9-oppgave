@@ -6,7 +6,13 @@ document.addEventListener('DOMContentLoaded', () => {
     const tilNumber = document.querySelector('#til-number')    
 
 
-    // Datatable fra gemini, noway at eg leite ette alle formlane. har begrensa litt antall forskjellige måleenheta
+    /* Datatable fra gemini, noway at eg leite ette alle formlane. har begrensa litt 
+    antall forskjellige måleenheta.
+    toBase og fromBase er for å konvertere til baseUnit for å slippe å konvertere 
+    alle til kverandre. så hvis du skal konvertere fra feet til inch, så 
+    konverteres det fra feet til meter, og så fra meter til inch.
+    dette funker ikkje for temperatur, så derfor har eg ikkje tatt temp med i kalkulatoren min.
+    */ 
     const data = {
         lengde: {
             baseUnit: 'meter', 
@@ -36,69 +42,80 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     };
 
-    
+    // function for å lage dropdown i <select> elemente "#til" og "#fra".
     function dropDownUnits (selectedUnits) {
+        // fjerne tidligare dropdown <option(s)>.
         fra.innerHTML = ''
         til.innerHTML = ''
-        
+        // sjekke om du har valgt ein måleenhet i <select> "#enhet"
         if (selectedUnits && data[selectedUnits]) {
             data[selectedUnits].units.forEach(item => {
+                // lage <option> i "#fra"
                 const fraOption = document.createElement('option')
+                // hente item valuen og text fra datatable
                 fraOption.value = item.value
                 fraOption.textContent = item.text
                 fra.appendChild(fraOption)
 
+                // lage <option> i "#til"
                 const tilOption = document.createElement('option')
                 tilOption.value = item.value
                 tilOption.textContent = item.text
                 til.appendChild(tilOption)
             })
         }
+        // velge dei to første <option> i kvart felt automatisk.
             fra.value = data[selectedUnits].units[0].value
             til.value = data[selectedUnits].units[1].value
-    }
-
-    
-        // TODO: laga input/output ut i fra kor eg skrive inn tallena.
+        }
+        
+        
+        // TODO: laga input/output ut i fra kor eg skrive inn tallena??
     
     function convert() {
         const selectedEnhetType = enhet.value
         const fromUnit = fra.value
         const toUnit = til.value
         const inputValue = parseFloat(fraNumber.value)
+        // sjekke om du har valgt måleenhet og units og om inputvalue e et gyldig nr.
         if (isNaN(inputValue) || !selectedEnhetType || !fromUnit || !toUnit) {
-            tilNumber = ''
+            tilNumber.value = ''
             return;
         } 
         
         let result;
 
-        if (selectedEnhetType === 'temperatur') {
-            result = convertTemperatur(inputValue, fromUnit, toUnit)
-        } else {
             const categoryData = data[selectedEnhetType]
+            // her hente den talle du har skreve inn i input felte.
             const fromUnitData = categoryData.units.find(unit => unit.value === fromUnit)
             const toUnitData = categoryData.units.find(unit => unit.value === toUnit)
-
+        // utføre konverteringe her.
             if (fromUnitData && toUnitData) {
                 const valueInBaseUnit = fromUnitData.toBase(inputValue)
                 result = toUnitData.fromBase(valueInBaseUnit)
             }
-        }
+        /* sjekke at result ikkje e undefined og ikkje e NaN og så returnere resultate i "#til" 
+        inputfelte med 2 desimala. hvis result e udefinert eller NaN, så returnere da "ERROR".*/
         if (result !== undefined && !isNaN(result)) {
             tilNumber.value = result.toFixed(2)
         } else {
             tilNumber.value = 'ERROR'
         }
         
-        
     }
 
+    /* når du bytte <option> i "#enhet" <select> elemente så får "selectedEnhet" ein verdi f.eks. "lengde"
+    fra datatable, og gir den verdien til dropDownUnits funksjonen sånn at den veit kalla <option(s)> 
+    som skal bli laga i "#fra" og "#til" <select> elementena. og utføre konverteringe 
+    med ein gong hvis du allerede har skreve inn nåken tall. */
     enhet.addEventListener('change', function() {
         const selectedEnhet = this.value
         dropDownUnits(selectedEnhet)
+        convert()
     })
 
+    /* utføre convert funksjonen når du endre verdien i input eller når du bytte måleunit, sånn at 
+    konverteringe skjer instantly i kalkulatoren. */
     fra.addEventListener('change', convert)
     til.addEventListener('change', convert)
     fraNumber.addEventListener('input', convert)
