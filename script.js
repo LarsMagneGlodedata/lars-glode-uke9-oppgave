@@ -72,53 +72,65 @@ document.addEventListener('DOMContentLoaded', () => {
     
     // TODO: laga input/output ut i fra kor eg skrive inn tallena??
     
-    function convert() {
+    function convertFrom() {
         const selectedEnhetType = enhet.value
         const fromUnit = fra.value
         const toUnit = til.value
         const inputValueFra = parseFloat(fraNumber.value)
-        const inputValueTil = parseFloat(tilNumber.value)
         // sjekke om du har valgt måleenhet og units og om inputvalue e et gyldig nr.
-        // if (isNaN(inputValueFra) || isNaN(inputValueTil) || !selectedEnhetType || !fromUnit || !toUnit) {
-        //     tilNumber.value = ''
-        //     return;
-        // } 
-        
-        let result;
-        let einboolean = false
-        let toboolean = false
-        if (fraNumber.value > 0) {
-            toboolean = true
+        if (isNaN(inputValueFra) || !selectedEnhetType || !fromUnit || !toUnit) {
+            tilNumber.value = ''
+            return;
         } 
-        console.log(fraNumber)
-        console.log(toboolean + ' fra input')
+        
+        
             const categoryData = data[selectedEnhetType]
             // her hente den talle du har skreve inn i input felte.
             const fromUnitData = categoryData.units.find(unit => unit.value === fromUnit)
             const toUnitData = categoryData.units.find(unit => unit.value === toUnit)
         // utføre konverteringe her.
-            if (fromUnitData && toUnitData && toboolean) {
+            if (fromUnitData && toUnitData) {
                 const valueInBaseUnit = fromUnitData.toBase(inputValueFra)
                 result = toUnitData.fromBase(valueInBaseUnit)
-                einboolean = false
-            
-            }   else if (fromUnitData && toUnitData && !toboolean) {
-                const valueInBaseUnit = toUnitData.toBase(inputValueTil)
-                result = fromUnitData.fromBase(valueInBaseUnit)
-                einboolean = true
             }
-            console.log(einboolean + ' fra "til" - "fra"')
         /* sjekke at result ikkje e undefined og ikkje e NaN og så returnere resultate i "#til" 
         inputfelte med 2 desimala. hvis result e udefinert eller NaN, så returnere da "ERROR".*/
-        if (result !== undefined && !isNaN(result) && !einboolean) {
+        if (result !== undefined && !isNaN(result)) {
             tilNumber.value = result.toFixed(2)
-        } else if (result !== undefined && !isNaN(result) && einboolean) {
-            fraNumber.value = result.toFixed(2)
         } else {
             tilNumber.value = 'ERROR'
         }
     }
     
+    function convertTo() {
+        const selectedEnhetType = enhet.value
+        const fromUnit = fra.value
+        const toUnit = til.value
+        const inputValueTil = parseFloat(tilNumber.value)
+        // sjekke om du har valgt måleenhet og units og om inputvalue e et gyldig nr.
+        if (isNaN(inputValueTil) || !selectedEnhetType || !fromUnit || !toUnit) {
+            fraNumber.value = ''
+            return;
+        } 
+        
+            const categoryData = data[selectedEnhetType]
+            // her hente den talle du har skreve inn i input felte.
+            const fromUnitData = categoryData.units.find(unit => unit.value === fromUnit)
+            const toUnitData = categoryData.units.find(unit => unit.value === toUnit)
+        // utføre konverteringe her.
+                if (fromUnitData && toUnitData) {
+                const valueInBaseUnit = toUnitData.toBase(inputValueTil)
+                result = fromUnitData.fromBase(valueInBaseUnit)
+            }
+        /* sjekke at result ikkje e undefined og ikkje e NaN og så returnere resultate i "#til" 
+        inputfelte med 2 desimala. hvis result e udefinert eller NaN, så returnere da "ERROR".*/
+
+        if (result !== undefined && !isNaN(result)) {
+            fraNumber.value = result.toFixed(2)
+        } else {
+            tilNumber.value = 'ERROR'
+        }
+    }
 
     /* når du bytte <option> i "#enhet" <select> elemente så får "selectedEnhet" ein verdi f.eks. "lengde"
     fra datatable, og gir den verdien til dropDownUnits funksjonen sånn at den veit kalla <option(s)> 
@@ -127,18 +139,14 @@ document.addEventListener('DOMContentLoaded', () => {
     enhet.addEventListener('change', function() {
         const selectedEnhet = this.value
         dropDownUnits(selectedEnhet)
-        convert()
+        convertFrom()
     })
 
     /* utføre convert funksjonen når du endre verdien i input eller når du bytte måleunit, sånn at 
     konverteringe skjer instantly i kalkulatoren. */
-    fra.addEventListener('change', convert)
-    til.addEventListener('change', convert)
-    fraNumber.addEventListener('input', () => {
-        setTimeout(convert, 1000)
-    })
-    tilNumber.addEventListener('input', () => {
-        setTimeout(convert, 1000)
-    })
+    fra.addEventListener('change', convertFrom)
+    til.addEventListener('change', convertTo)
+    fraNumber.addEventListener('input', convertFrom)
+    tilNumber.addEventListener('input', convertTo)
 
 })
