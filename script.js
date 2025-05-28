@@ -65,12 +65,12 @@ document.addEventListener('DOMContentLoaded', () => {
             })
         }
         // velge dei to første <option> i kvart felt automatisk.
-            fra.value = data[selectedUnits].units[0].value
-            til.value = data[selectedUnits].units[1].value
-        }
-        
-        
-        // TODO: laga input/output ut i fra kor eg skrive inn tallena??
+        fra.value = data[selectedUnits].units[0].value
+        til.value = data[selectedUnits].units[1].value
+    }
+    
+    
+    // TODO: laga input/output ut i fra kor eg skrive inn tallena??
     
     function convert() {
         const selectedEnhetType = enhet.value
@@ -120,8 +120,5 @@ document.addEventListener('DOMContentLoaded', () => {
     til.addEventListener('change', convert)
     fraNumber.addEventListener('input', convert)
     tilNumber.addEventListener('input', convert)
-
-
-
 
 })
