@@ -31,7 +31,7 @@ main {
 }
 
 input {
-    text-align: end;
+    text-align: right;
     color: var(--font-color);
     padding: var(--default-padding);
     background-color: var(--primary-color);

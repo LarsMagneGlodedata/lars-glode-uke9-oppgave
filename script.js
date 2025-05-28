@@ -17,27 +17,34 @@ document.addEventListener('DOMContentLoaded', () => {
         lengde: {
             baseUnit: 'meter', 
             units: [
-                { value: 'cm', text: 'cm', toBase: (val) => val / 100, fromBase: (val) => val * 100 },
-                { value: 'meter', text: 'meter', toBase: (val) => val, fromBase: (val) => val },
-                { value: 'inch', text: 'tommer', toBase: (val) => val * 0.0254, fromBase: (val) => val / 0.0254 },
-                { value: 'feet', text: 'feet', toBase: (val) => val * 0.3048, fromBase: (val) => val / 0.3048 }
+                { value: 'meter', text: 'Meters (M)', toBase: (val) => val, fromBase: (val) => val },
+                { value: 'mm', text: 'Millimeters (mm)', toBase: (val) => val / 1000, fromBase: (val) => val * 1000 },
+                { value: 'cm', text: 'Centimeters (cm)', toBase: (val) => val / 100, fromBase: (val) => val * 100 },
+                { value: 'km', text: 'Kilometers (km)', toBase: (val) => val * 1000, fromBase: (val) => val / 1000 },
+                { value: 'inch', text: 'Inches (in)', toBase: (val) => val * 0.0254, fromBase: (val) => val / 0.0254 },
+                { value: 'feet', text: 'Feet (ft)', toBase: (val) => val * 0.3048, fromBase: (val) => val / 0.3048 },
+                { value: 'yard', text: 'Yards (yd)', toBase: (val) => val * 0.9144, fromBase: (val) => val / 0.9144 },
+                { value: 'mile', text: 'Miles (mi)', toBase: (val) => val * 1609.34, fromBase: (val) => val / 1609.34 }
             ]
         },
         vekt: {
             baseUnit: 'kg',
             units: [
-                { value: 'gram', text: 'gram', toBase: (val) => val / 1000, fromBase: (val) => val * 1000 },
-                { value: 'kg', text: 'kg', toBase: (val) => val, fromBase: (val) => val },
-                { value: 'pund', text: 'pund', toBase: (val) => val * 0.453592, fromBase: (val) => val / 0.453592 },
+                { value: 'kg', text: 'Kilograms(kg)', toBase: (val) => val, fromBase: (val) => val },
+                { value: 'gram', text: 'Grams (g)', toBase: (val) => val / 1000, fromBase: (val) => val * 1000 },
+                { value: 'tonn', text: 'Tonns (t)', toBase: (val) => val * 1000, fromBase: (val) => val / 1000 },
+                { value: 'pounds', text: 'Pounds (lb)', toBase: (val) => val * 0.45359237, fromBase: (val) => val / 0.45359237 },
                 { value: 'stone', text: 'stone', toBase: (val) => val * 6.35029, fromBase: (val) => val / 6.35029 }
             ]
         },
         volum: {
             baseUnit: 'liter',
             units: [
-                { value: 'liter', text: 'liter', toBase: (val) => val, fromBase: (val) => val },
-                { value: 'ml', text: 'milliliter', toBase: (val) => val / 1000, fromBase: (val) => val * 1000 },
-                { value: 'gallons', text: 'gallons', toBase: (val) => val * 3.78541, fromBase: (val) => val / 3.78541 }
+                { value: 'liter', text: 'Liter (l)', toBase: (val) => val, fromBase: (val) => val },
+                { value: 'ml', text: 'Milliliters (ml)', toBase: (val) => val / 1000, fromBase: (val) => val * 1000 },
+                { value: 'cl', text: 'Centiliters (cl)', toBase: (val) => val / 100, fromBase: (val) => val * 100 },
+                { value: 'dl', text: 'Deciliters (dl)', toBase: (val) => val / 10, fromBase: (val) => val * 10 },
+                { value: 'gallons', text: 'US gallons (gal)', toBase: (val) => val * 3.785411784, fromBase: (val) => val / 3.785411784 }
             ]
         }
     };
@@ -70,63 +77,62 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     
     
-    // TODO: laga input/output ut i fra kor eg skrive inn tallena??
-    
+    // konvertere fra venstre felt til høgre. 
     function convertFrom() {
         const selectedEnhetType = enhet.value
         const fromUnit = fra.value
         const toUnit = til.value
         const inputValueFra = parseFloat(fraNumber.value)
+        const categoryData = data[selectedEnhetType]
+        const fromUnitData = categoryData.units.find(unit => unit.value === fromUnit)
+        const toUnitData = categoryData.units.find(unit => unit.value === toUnit)
         // sjekke om du har valgt måleenhet og units og om inputvalue e et gyldig nr.
         if (isNaN(inputValueFra) || !selectedEnhetType || !fromUnit || !toUnit) {
             tilNumber.value = ''
             return;
         } 
         
-        
-            const categoryData = data[selectedEnhetType]
-            // her hente den talle du har skreve inn i input felte.
-            const fromUnitData = categoryData.units.find(unit => unit.value === fromUnit)
-            const toUnitData = categoryData.units.find(unit => unit.value === toUnit)
+        // her hente den talle du har skreve inn i input felte.
         // utføre konverteringe her.
-            if (fromUnitData && toUnitData) {
-                const valueInBaseUnit = fromUnitData.toBase(inputValueFra)
-                result = toUnitData.fromBase(valueInBaseUnit)
-            }
+        if (fromUnitData && toUnitData) {
+            const valueInBaseUnit = fromUnitData.toBase(inputValueFra)
+            result = toUnitData.fromBase(valueInBaseUnit)
+        }
         /* sjekke at result ikkje e undefined og ikkje e NaN og så returnere resultate i "#til" 
         inputfelte med 2 desimala. hvis result e udefinert eller NaN, så returnere da "ERROR".*/
         if (result !== undefined && !isNaN(result)) {
-            tilNumber.value = result.toFixed(2)
+            tilNumber.value = result
         } else {
             tilNumber.value = 'ERROR'
         }
     }
-    
+
+    // konvertere fra høgre felt til venstre
     function convertTo() {
         const selectedEnhetType = enhet.value
         const fromUnit = fra.value
         const toUnit = til.value
         const inputValueTil = parseFloat(tilNumber.value)
+        const categoryData = data[selectedEnhetType]
+        const fromUnitData = categoryData.units.find(unit => unit.value === fromUnit)
+        const toUnitData = categoryData.units.find(unit => unit.value === toUnit)
         // sjekke om du har valgt måleenhet og units og om inputvalue e et gyldig nr.
         if (isNaN(inputValueTil) || !selectedEnhetType || !fromUnit || !toUnit) {
             fraNumber.value = ''
             return;
         } 
         
-            const categoryData = data[selectedEnhetType]
-            // her hente den talle du har skreve inn i input felte.
-            const fromUnitData = categoryData.units.find(unit => unit.value === fromUnit)
-            const toUnitData = categoryData.units.find(unit => unit.value === toUnit)
+        // her hente den talle du har skreve inn i input felte.
         // utføre konverteringe her.
-                if (fromUnitData && toUnitData) {
-                const valueInBaseUnit = toUnitData.toBase(inputValueTil)
-                result = fromUnitData.fromBase(valueInBaseUnit)
-            }
+         if (fromUnitData && toUnitData) {
+         const valueInBaseUnit = toUnitData.toBase(inputValueTil)
+         result = fromUnitData.fromBase(valueInBaseUnit)
+         }
         /* sjekke at result ikkje e undefined og ikkje e NaN og så returnere resultate i "#til" 
         inputfelte med 2 desimala. hvis result e udefinert eller NaN, så returnere da "ERROR".*/
 
         if (result !== undefined && !isNaN(result)) {
-            fraNumber.value = result.toFixed(2)
+            fraNumber.value = result
         } else {
             tilNumber.value = 'ERROR'
         }
@@ -145,7 +151,7 @@ document.addEventListener('DOMContentLoaded', () => {
     /* utføre convert funksjonen når du endre verdien i input eller når du bytte måleunit, sånn at 
     konverteringe skjer instantly i kalkulatoren. */
     fra.addEventListener('change', convertFrom)
-    til.addEventListener('change', convertTo)
+    til.addEventListener('change', convertFrom)
     fraNumber.addEventListener('input', convertFrom)
     tilNumber.addEventListener('input', convertTo)
 
